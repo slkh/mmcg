@@ -88,9 +88,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
         # drop the individual norm columns
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
             df = df.drop(columns=[f"{norm}.{norm}_ADHERENCES", f"{norm}.{norm}_VIOLATIONS"])
-    # flatten the NORM column and then return the dataset
-    df = df.assign(**df["NORM"].apply(pd.Series))
-    df = df.drop(columns=["NORM"])
+
 
     return datasets.Dataset.from_pandas(df, preserve_index=False)
 
