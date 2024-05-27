@@ -9,10 +9,10 @@
     "save_strategy": "epoch",
     "evaluation_strategy": "epoch",
 
-    "num_labels": 5,
+    "class_type": 1,
     "data_seed": 19,
     "data_num_folds": 5,
-    "do_regression": true,
+    "do_regression": false,
     "do_train": true,
     "do_eval": true,
 
