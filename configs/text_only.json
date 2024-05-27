@@ -1,6 +1,7 @@
 {
     "text_model_name_or_path": "google-bert/bert-base-uncased",
-    "output_dir": "outputs/cb/text_only",
+    "output_dir": "outputs/norm/text_only",
+    "use_opensmile_features": false,
     "overwrite_output_dir": true,
 
     "save_total_limit": 1,
