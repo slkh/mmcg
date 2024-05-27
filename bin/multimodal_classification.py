@@ -129,16 +129,16 @@ def run(
         model_args.text_model_name_or_path
     ) if model_args.text_model_name_or_path else None
     assert not tokenizer or (tokenizer.model_max_length >= data_args.text_max_length)
-    data = data.cast_column("audio", datasets.Audio(sampling_rate=16_000))
+#    data = data.cast_column("audio", datasets.Audio(sampling_rate=16_000))
     def preprocess_fn(examples):
         dummy = [[0]] * len(examples[list(examples.keys())[0]])
         # Audio processing.
-        audio_arrays = [x["array"] for x in examples["audio"]]
+    #    audio_arrays = [x["array"] for x in examples["audio"]]
         inputs = feature_extractor(
-            audio_arrays,
-            sampling_rate=getattr(feature_extractor, "sampling_rate", 16_000),
+     #       audio_arrays,
+       #     sampling_rate=getattr(feature_extractor, "sampling_rate", 16_000),
             padding="max_length",
-            max_length=data_args.audio_max_length * 16_000,
+        #   max_length=data_args.audio_max_length * 16_000,
             truncation=True
         ) if feature_extractor else {"input_values": dummy}
         if "input_features" in inputs:  # Whisper names them differently.
