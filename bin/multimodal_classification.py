@@ -17,6 +17,7 @@ from src.core.context import Context, get_context
 from src.core.app import harness
 from src.core.path import dirparent
 from src.data import commitment_bank
+from src.data import norm
 from src.models.multimodal_classifier import MultimodalClassifier, ModelArguments
 
 
@@ -107,10 +108,14 @@ def run(
     # XXX: Currently not needed.
     training_args.greater_is_better = metric not in ("loss", "eval_loss", "mse", "mae")
     # Load training data.
-    data = commitment_bank.load_kfold(
-        num_labels=model_args.num_labels,
-        fold=data_args.data_fold,
-        k=data_args.data_num_folds,
+    # data = commitment_bank.load_kfold(
+    #     num_labels=model_args.num_labels,
+    #     fold=data_args.data_fold,
+    #     k=data_args.data_num_folds,
+    #     seed=training_args.data_seed
+    # )
+    data = norm.load_data(
+        class_type=model_args.class_type,
         seed=training_args.data_seed
     )
     if data_args.do_regression:
@@ -140,7 +145,7 @@ def run(
             inputs["input_values"] = inputs.pop("input_features")
         # Text processing.
         inputs |= tokenizer(
-            examples["cb_target"],
+            examples["text"],
             padding="max_length",
             max_length=data_args.text_max_length,
             truncation=True
@@ -151,7 +156,7 @@ def run(
         "input_ids": "text_input_ids",
         "attention_mask": "text_attention_mask",
         "input_values": "audio_input_values",
-        "cb_val": "label",
+        "NORM": "label",
     })
     train_dataset, eval_dataset = data["train"], data["test"]
     # Model training.
