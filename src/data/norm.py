@@ -12,6 +12,8 @@ from ..core.path import dirparent
 CB_DIR = os.path.join(dirparent(os.path.realpath(__file__), 3), "data", "cb")
 NORM_DIR = os.path.join(dirparent(os.path.realpath(__file__), 3), "data", "norm")
 # create a map to convert the norm names with their adher/viol to indices starting from 1 with
+
+NORMS = ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]
 NORM_MAP = {
     "APOLOGY_ADHER": 1,
     "APOLOGY_VIOL": 2,
@@ -50,20 +52,30 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
     # {"file_id": "O01008ZE1", "segment_id": "O01008ZE1_0001", "segment_overlap_pct": 0.1449333333333319, "start": 2396.353, "end": 2398.774, "text": "И весь современный мир — это сейчас микс.", "speaker": "SPEAKER_01", "transcript_overlap_pct": 0.8979760429575127, "NORM": {"APOLOGY_ADHERENCES": 0, "APOLOGY_VIOLATIONS": 0, "CRITICISM_ADHERENCES": 0, "CRITICISM_VIOLATIONS": 0, "GREETING_ADHERENCES": 0, "GREETING_VIOLATIONS": 0, "REQUEST_ADHERENCES": 0, "REQUEST_VIOLATIONS": 0, "PERSUASION_ADHERENCES": 0, "PERSUASION_VIOLATIONS": 0, "THANKING_ADHERENCES": 0, "THANKING_VIOLATIONS": 0, "LEAVING_ADHERENCES": 0, "LEAVING_VIOLATIONS": 0, "ADMIRATION_ADHERENCES": 0, "ADMIRATION_VIOLATIONS": 0, "FINALIZE_DEAL_ADHERENCES": 0, "FINALIZE_DEAL_VIOLATIONS": 0, "REFUSE_REQUEST_ADHERENCES": 0, "REFUSE_REQUEST_VIOLATIONS": 0}, "EMOTION": {"ANGER": 0, "ANTICIPATION": 0, "DISGUST": 0, "FEAR": 0, "JOY": 0, "SADNESS": 0, "SURPRISE": 0, "TRUST": 0, "MULTI_SPEAKER": "False"}, "VA": {"VALENCE_AVG": 543.0, "AROUSAL_AVG": 578.3333333333334, "VALENCE_BINNED_AVG": 3.0, "AROUSAL_BINNED_AVG": 3.333333333333333, "VALENCE_AVG_Z": 0.0240707300729762, "AROUSAL_AVG_Z": 0.1260399460227707}, "catalog_id": "LDC2024E15", "duration": 2.4209999999998217, "url": "https://vk.com/video-76218259_456239289"}
     # drop everything except the text and the norms
     df = df[["text", "NORM"]]
+    # flatten the NORM column
+    df = df.assign(**df["NORM"].apply(pd.Series))
+    df = df.drop(columns=["NORM"])
 
     if class_type == 1:
         # combine the adherences and violations for each norm in a single column per norm as a binary 
         # value: 0 for no adherence or violation, 1 for adherence or violation. 
-        for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
-            df['NORM'] = 1 if df['NORM'][f"{norm}_ADHERENCES"] + df['NORM'][f"{norm}_VIOLATIONS"] > 0 else 0
-            df = df.drop(columns=[f"{norm}.{norm}_ADHERENCES", f"{norm}.{norm}_VIOLATIONS"])
+        df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 or row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
+
+
+        # drop the individual norm columns
+        for norm in NORMS:
+            df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
     elif class_type == 2:
         # keep the adherences and violations for each norm as separate columns but change the value to 1 if
         # there is an adherence or violation, 0 otherwise
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
-            df['NORM'][f"{norm}_ADHERENCES"] = 1 if df['NORM'][f"{norm}_ADHERENCES"] > 0 else 0
-            df['NORM'][f"{norm}_VIOLATIONS"] = 1 if df['NORM'][f"{norm}_VIOLATIONS"] > 0 else 0
+            df[f"{norm}_ADHERENCES"] = df[f"{norm}_ADHERENCES"].apply(lambda x: 1 if x > 0 else 0)
+            df[f"{norm}_VIOLATIONS"] = df[f"{norm}_VIOLATIONS"].apply(lambda x: 1 if x > 0 else 0)
+
             # convert the multiple adherences and violations columns into a single NORM column with the norm name_ADHER or _VIOL if value is 1 in the respective column
+
+
+
             df['NORM'] = df['NORM'].apply(lambda x: f"{norm}_ADHER" if x[f"{norm}_ADHERENCES"] == 1 else f"{norm}_VIOL" if x[f"{norm}_VIOLATIONS"] == 1 else 0)
             # use NORM_MAP to convert the norm names with their adher/vio to indices starting from 1
             df['NORM'] = df['NORM'].map(NORM_MAP)
