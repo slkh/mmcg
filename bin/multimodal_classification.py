@@ -133,12 +133,13 @@ def run(
     def preprocess_fn(examples):
         dummy = [[0]] * len(examples[list(examples.keys())[0]])
         # Audio processing.
-    #    audio_arrays = [x["array"] for x in examples["audio"]]
+        # audio_arrays = [x["array"] for x in examples["audio"]]
+        audio_arrays = []
         inputs = feature_extractor(
-     #       audio_arrays,
-       #     sampling_rate=getattr(feature_extractor, "sampling_rate", 16_000),
+            audio_arrays,
+            sampling_rate=getattr(feature_extractor, "sampling_rate", 16_000),
             padding="max_length",
-        #   max_length=data_args.audio_max_length * 16_000,
+           max_length=data_args.audio_max_length * 16_000,
             truncation=True
         ) if feature_extractor else {"input_values": dummy}
         if "input_features" in inputs:  # Whisper names them differently.
