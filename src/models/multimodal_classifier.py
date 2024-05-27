@@ -99,17 +99,17 @@ class MultimodalClassifier(torch.nn.Module):
             ),  # Dense projection layer.
             #  torch.nn.LayerNorm(self.classifier_proj_size),  # XXX: Make optional?
             torch.nn.ReLU(),  # Activation. TODO: Dropout?
-            torch.nn.Linear(self.classifier_proj_size, config.num_labels)  # Classifier.
+            torch.nn.Linear(self.classifier_proj_size, config.class_type)  # Classifier.
         )
         # Initialize late fusion classification heads.
         self.text_classification_head = classification_head(
-            text_hidden_size, text_hidden_size, config.num_labels
+            text_hidden_size, text_hidden_size, config.class_type
         )
         self.audio_classification_head = classification_head(
-            audio_hidden_size, audio_hidden_size, config.num_labels
+            audio_hidden_size, audio_hidden_size, config.class_type
         )
         self.opensmile_classification_head = classification_head(
-            opensmile_hidden_size, opensmile_hidden_size, config.num_labels
+            opensmile_hidden_size, opensmile_hidden_size, config.class_type
         )
 
     def forward(
@@ -165,13 +165,13 @@ class MultimodalClassifier(torch.nn.Module):
         # Compute loss.
         loss = None
         if labels is not None:
-            if self.config.num_labels == 1:
+            if self.config.class_type == 1:
                 loss_fct = torch.nn.MSELoss()
                 loss = loss_fct(logits.squeeze(), labels.squeeze())
             else:
                 # TODO: Consider weighting? label_smoothing?
                 loss_fct = torch.nn.CrossEntropyLoss()
-                loss = loss_fct(logits.view(-1, self.config.num_labels), labels.view(-1))
+                loss = loss_fct(logits.view(-1, self.config.class_type), labels.view(-1))
 
         # Return.
         return tf.modeling_outputs.SequenceClassifierOutput(loss=loss, logits=logits)
