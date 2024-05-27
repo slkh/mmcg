@@ -55,18 +55,18 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
         # combine the adherences and violations for each norm in a single column per norm as a binary 
         # value: 0 for no adherence or violation, 1 for adherence or violation. 
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
-            df[f"{norm}"] = 1 if df[f"{norm}"][f"{norm}_ADHERENCES"] + df[f"{norm}"][f"{norm}_VIOLATIONS"] > 0 else 0
+            df['NORM'] = 1 if df['NORM'][f"{norm}_ADHERENCES"] + df['NORM'][f"{norm}_VIOLATIONS"] > 0 else 0
             df = df.drop(columns=[f"{norm}.{norm}_ADHERENCES", f"{norm}.{norm}_VIOLATIONS"])
     elif class_type == 2:
         # keep the adherences and violations for each norm as separate columns but change the value to 1 if
         # there is an adherence or violation, 0 otherwise
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
-            df[f"{norm}"][f"{norm}_ADHERENCES"] = 1 if df[f"{norm}"][f"{norm}_ADHERENCES"] > 0 else 0
-            df[f"{norm}"][f"{norm}_VIOLATIONS"] = 1 if df[f"{norm}"][f"{norm}_VIOLATIONS"] > 0 else 0
+            df['NORM'][f"{norm}_ADHERENCES"] = 1 if df['NORM'][f"{norm}_ADHERENCES"] > 0 else 0
+            df['NORM'][f"{norm}_VIOLATIONS"] = 1 if df['NORM'][f"{norm}_VIOLATIONS"] > 0 else 0
             # convert the multiple adherences and violations columns into a single NORM column with the norm name_ADHER or _VIOL if value is 1 in the respective column
-            df[f"{norm}"] = df[f"{norm}"].apply(lambda x: f"{norm}_ADHER" if x[f"{norm}_ADHERENCES"] == 1 else f"{norm}_VIOL" if x[f"{norm}_VIOLATIONS"] == 1 else 0)
+            df['NORM'] = df['NORM'].apply(lambda x: f"{norm}_ADHER" if x[f"{norm}_ADHERENCES"] == 1 else f"{norm}_VIOL" if x[f"{norm}_VIOLATIONS"] == 1 else 0)
             # use NORM_MAP to convert the norm names with their adher/vio to indices starting from 1
-            df[f"{norm}"] = df[f"{norm}"].map(NORM_MAP)
+            df['NORM'] = df['NORM'].map(NORM_MAP)
             df = df.drop(columns=[f"{norm}.{norm}_ADHERENCES", f"{norm}.{norm}_VIOLATIONS"])
     elif class_type == 3:
         # combine everything into two columns: ADHERENCES and VIOLATIONS, where the value is 1 if there is an
