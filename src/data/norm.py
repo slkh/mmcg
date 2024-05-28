@@ -55,13 +55,14 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
     df['text'] = df['text'].astype(str)
     # flatten the NORM column
     norm_df = pd.json_normalize(df['NORM'])
-    norm_df = norm_df.astype(int)
     df = pd.concat([df, norm_df], axis=1)
     df = df.drop(columns=["NORM"])
     if class_type == 1:
         # combine the adherences and violations for each norm in a single column per norm as a binary 
         # value: 0 for no adherence or violation, 1 for adherence or violation. 
         df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 or row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
+        # make NORM an integer column
+        df['NORM'] = df['NORM'].astype(int)
         # drop the individual norm columns
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
