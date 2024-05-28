@@ -174,7 +174,7 @@ def run(
         else:
             predictions = np.argmax(eval_pred.predictions, axis=1)
         # Save predictions to file.
-        cols = ["number", "clip_start", "clip_end", "cb_target", "label"]
+        cols = ["text", "label"]
         pdf = eval_dataset.to_pandas()[cols].assign(pred=predictions)
         assert np.allclose(pdf.label, eval_pred.label_ids)
         pdf.to_csv(os.path.join(training_args.output_dir, "preds.csv"))
