@@ -58,7 +58,6 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
     norm_df = norm_df.astype(int)
     df = pd.concat([df, norm_df], axis=1)
     df = df.drop(columns=["NORM"])
-
     if class_type == 1:
         # combine the adherences and violations for each norm in a single column per norm as a binary 
         # value: 0 for no adherence or violation, 1 for adherence or violation. 

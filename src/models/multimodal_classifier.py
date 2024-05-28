@@ -117,7 +117,7 @@ class MultimodalClassifier(torch.nn.Module):
         text_input_ids,
         text_attention_mask,
         audio_input_values,
-        opensmile_features,
+       # opensmile_features,
         labels,
         **kwargs
     ):
