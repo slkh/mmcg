@@ -12,7 +12,7 @@
 
     "class_type": 1,
     "data_seed": 19,
-    "data_num_folds": 5,
+    "data_num_folds": 1,
     "do_regression": false,
     "do_train": true,
     "do_eval": true,

@@ -134,7 +134,7 @@ def run(
         dummy = [[0]] * len(examples[list(examples.keys())[0]])
         # Audio processing.
         # audio_arrays = [x["array"] for x in examples["audio"]]
-        audio_arrays = []
+        audio_arrays = dummy
         inputs = feature_extractor(
             audio_arrays,
             sampling_rate=getattr(feature_extractor, "sampling_rate", 16_000),
@@ -144,6 +144,7 @@ def run(
         ) if feature_extractor else {"input_values": dummy}
         if "input_features" in inputs:  # Whisper names them differently.
             inputs["input_values"] = inputs.pop("input_features")
+        inputs["opensmile_features"] = dummy
         # Text processing.
         inputs |= tokenizer(
             examples["text"],

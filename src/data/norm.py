@@ -62,7 +62,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
         # value: 0 for no adherence or violation, 1 for adherence or violation. 
         df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 or row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
         # make NORM an integer column
-        df['NORM'] = df['NORM'].astype(int)
+        df['NORM'] = df['NORM'].astype(float)
         # drop the individual norm columns
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
