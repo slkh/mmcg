@@ -87,13 +87,10 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
     ), 
     axis=1
 )
-        # fix the above statment but adding list comperhension and any()
-
-
 
         # drop the individual norm columns
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
-            df = df.drop(columns=[f"{norm}.{norm}_ADHERENCES", f"{norm}.{norm}_VIOLATIONS"])
+            df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
         df['NORM'] = df['NORM'].astype(float)
 
 
