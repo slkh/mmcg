@@ -72,6 +72,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
             df.loc[df[f"{norm}_ADHERENCES"] > 0, 'NORM'] = 1
             df.loc[df[f"{norm}_VIOLATIONS"] > 0, 'NORM'] = 2
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
+        df['NORM'] = df['NORM'].astype(float)
 
 
     elif class_type == 3:
