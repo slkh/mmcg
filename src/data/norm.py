@@ -67,10 +67,10 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
     elif class_type == 2:
         df['NORM'] = 0
-        for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
-            # if there is an adherence, set to 1, if there is a violation, set to 2, else 0
-            df.loc[df[f"{norm}_ADHERENCES"] > 0, 'NORM'] = 1
-            df.loc[df[f"{norm}_VIOLATIONS"] > 0, 'NORM'] = 2
+        # if there is an adherence, set to 1, if there is a violation, set to 2, else 0
+        df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 for norm in NORMS) else 2 if any(row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
+
+        for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
         df['NORM'] = df['NORM'].astype(float)
 
