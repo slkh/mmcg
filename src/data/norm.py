@@ -76,14 +76,14 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
 
 
     elif class_type == 3:
-        # combine everything into two columns: ADHERENCES and VIOLATIONS, where the value is 1 if there is an
-        # adherence or violation, 0 otherwise
-        df["ADHERENCES"] = 1 if any(df[f"{norm}.{norm}_ADHERENCES"] > 0 for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]) else 0
-        df["VIOLATIONS"] = 1 if any(df[f"{norm}.{norm}_VIOLATIONS"] > 0 for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]) else 0
+        # for each norm, whether there is an adherence or violation, set the NORM column to the corresponding index from the NORM_MAP
+        df['NORM'] = df.apply(lambda row: NORM_MAP[f"{norm}_ADHERENCES"] if row[f"{norm}_ADHERENCES"] > 0 else NORM_MAP[f"{norm}_VIOLATIONS"] if row[f"{norm}_VIOLATIONS"] > 0 else 0, axis=1)
+
 
         # drop the individual norm columns
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
             df = df.drop(columns=[f"{norm}.{norm}_ADHERENCES", f"{norm}.{norm}_VIOLATIONS"])
+        df['NORM'] = df['NORM'].astype(float)
 
 
     return datasets.Dataset.from_pandas(df, preserve_index=False)
