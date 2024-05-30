@@ -77,7 +77,9 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
 
     elif class_type == 3:
         # for each norm, whether there is an adherence or violation, set the NORM column to the corresponding index from the NORM_MAP
-        df['NORM'] = df.apply(lambda row: NORM_MAP[f"{norm}_ADHERENCES"] if row[f"{norm}_ADHERENCES"] > 0 else NORM_MAP[f"{norm}_VIOLATIONS"] if row[f"{norm}_VIOLATIONS"] > 0 else 0, axis=1)
+        df['NORM'] = df.apply(lambda row: NORM_MAP[f"{norm}_ADHERENCES"] if any(row[f"{norm}_ADHERENCES"] > 0 for norm in NORMS) else NORM_MAP[f"{norm}_VIOLATIONS"] if any(row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
+        # fix the above statment but adding list comperhension and any()
+
 
 
         # drop the individual norm columns
