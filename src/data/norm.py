@@ -59,9 +59,9 @@ def multiply_minority_classes(df: pd.DataFrame) -> pd.DataFrame:
     df_multiplied.reset_index(drop=True, inplace=True)
     return df_multiplied
 
-def load(class_type: int, mode: str) -> datasets.Dataset:
+def load(num_labels: int, mode: str) -> datasets.Dataset:
     # class types: 1: each norm, 2: each norm adh/vio, 3: adh/vio of ANY norm
-    assert class_type in (1, 2, 3)
+    assert num_labels in (2, 3, 20)
     assert mode in ("train", "test")
     if mode == "train":
         filename = "train_wh_utt.jsonl"
@@ -77,7 +77,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
     norm_df = pd.json_normalize(df['NORM'])
     df = pd.concat([df, norm_df], axis=1)
     df = df.drop(columns=["NORM"])
-    if class_type == 2:
+    if num_labels == 2:
         # value: 0 for no adherence or violation, 1 for adherence or violation. 
         df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 or row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
         # make NORM an integer column
@@ -87,7 +87,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
         # if mode == "train":
         #     df = multiply_minority_classes(df)
-    elif class_type == 3:
+    elif num_labels == 3:
 #        df['NORM'] = 0
         # if there is an adherence, set to 1, if there is a violation, set to 2, else 0
         df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 for norm in NORMS) else 2 if any(row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
@@ -97,7 +97,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
         df['NORM'] = df['NORM'].astype(int)
 
 
-    elif class_type == 20:
+    elif num_labels == 20:
         # for each norm, whether there is an adherence or violation, set the NORM column to the corresponding index from the NORM_MAP
         df['NORM'] = df.apply(
         lambda row: next(
@@ -118,10 +118,10 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
 
     return datasets.Dataset.from_pandas(df, preserve_index=False)
 
-def load_data(class_type: int,seed: int = 42) -> datasets.DatasetDict:
-    assert class_type in (1, 2, 3)
-    norm_train = load(class_type, "train")
-    norm_test = load(class_type, "test")
+def load_data(num_labels: int,seed: int = 42) -> datasets.DatasetDict:
+    assert num_labels in (2, 3, 20)
+    norm_train = load(num_labels, "train")
+    norm_test = load(num_labels, "test")
     return datasets.DatasetDict({
         "train": norm_train,
         "test": norm_test,
