@@ -77,16 +77,16 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
     norm_df = pd.json_normalize(df['NORM'])
     df = pd.concat([df, norm_df], axis=1)
     df = df.drop(columns=["NORM"])
-    if class_type == 1:
+    if class_type == 2:
         # value: 0 for no adherence or violation, 1 for adherence or violation. 
         df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 or row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
         # make NORM an integer column
-        df['NORM'] = df['NORM'].astype(float)
+        df['NORM'] = df['NORM'].astype(int)
         # drop the individual norm columns
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
-        if mode == "train":
-            df = multiply_minority_classes(df)
+        # if mode == "train":
+        #     df = multiply_minority_classes(df)
     elif class_type == 3:
 #        df['NORM'] = 0
         # if there is an adherence, set to 1, if there is a violation, set to 2, else 0
@@ -94,7 +94,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
 
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
-        df['NORM'] = df['NORM'].astype(float)
+        df['NORM'] = df['NORM'].astype(int)
 
 
     elif class_type == 20:
@@ -113,7 +113,7 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
         # drop the individual norm columns
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
-        df['NORM'] = df['NORM'].astype(float)
+        df['NORM'] = df['NORM'].astype(int)
 
 
     return datasets.Dataset.from_pandas(df, preserve_index=False)

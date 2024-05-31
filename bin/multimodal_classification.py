@@ -115,7 +115,7 @@ def run(
     #     seed=training_args.data_seed
     # )
     data = norm.load_data(
-        class_type=model_args.class_type,
+        num_labels=model_args.num_labels,
         seed=training_args.data_seed
     )
     if data_args.do_regression:

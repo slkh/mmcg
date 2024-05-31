@@ -1,6 +1,6 @@
 {
-    "text_model_name_or_path": "google-bert/bert-base-uncased",
-    "output_dir": "outputs/norm/text_only_1",
+    "text_model_name_or_path": "FacebookAI/xlm-roberta-base",
+    "output_dir": "outputs/norm/text_only_2_xml_roberta",
     "use_opensmile_features": false,
     "overwrite_output_dir": true,
 
@@ -10,7 +10,7 @@
     "save_strategy": "epoch",
     "evaluation_strategy": "epoch",
 
-    "class_type": 1,
+    "num_labels": 2,
     "data_seed": 19,
     "data_num_folds": 1,
     "do_regression": false,
