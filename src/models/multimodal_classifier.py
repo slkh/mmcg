@@ -165,7 +165,7 @@ class MultimodalClassifier(torch.nn.Module):
         # Compute loss.
         loss = None
         if labels is not None:
-            if self.config.num_label == 1:
+            if self.config.num_labels == 1:
                 loss_fct = torch.nn.MSELoss()
                 loss = loss_fct(logits.squeeze(), labels.squeeze())
             else:
