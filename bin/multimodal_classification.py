@@ -120,7 +120,7 @@ def run(
     )
     if data_args.do_regression:
         data = data.remove_columns("cb_val").rename_column("cb_val_float", "cb_val")
-        model_args.num_labels = 1  # NOTE: Just used to stratify.
+        model_args.num_labels = 0  # NOTE: Just used to stratify.
     # Preprocess training data.
     feature_extractor = tf.AutoFeatureExtractor.from_pretrained(
         model_args.audio_model_name_or_path
