@@ -15,8 +15,8 @@ class ModelArguments:
     text_model_name_or_path: Optional[str] = dataclasses.field(default=None)
     audio_model_name_or_path: Optional[str] = dataclasses.field(default=None)
     use_opensmile_features: bool = dataclasses.field(default=False)
-    # num_labels: int = dataclasses.field(default=None)
-    class_type: int = dataclasses.field(default=None)
+    num_labels: int = dataclasses.field(default=None)
+    # class_type: int = dataclasses.field(default=None)
     text_pooler_type: Optional[PoolerType] = dataclasses.field(default="max")
     audio_pooler_type: Optional[PoolerType] = dataclasses.field(default="max")
     freeze_text_model: bool = dataclasses.field(default=False)
@@ -99,17 +99,17 @@ class MultimodalClassifier(torch.nn.Module):
             ),  # Dense projection layer.
             #  torch.nn.LayerNorm(self.classifier_proj_size),  # XXX: Make optional?
             torch.nn.ReLU(),  # Activation. TODO: Dropout?
-            torch.nn.Linear(self.classifier_proj_size, config.class_type)  # Classifier.
+            torch.nn.Linear(self.classifier_proj_size, config.num_labels)  # Classifier.
         )
         # Initialize late fusion classification heads.
         self.text_classification_head = classification_head(
-            text_hidden_size, text_hidden_size, config.class_type
+            text_hidden_size, text_hidden_size, config.num_labels
         )
         self.audio_classification_head = classification_head(
-            audio_hidden_size, audio_hidden_size, config.class_type
+            audio_hidden_size, audio_hidden_size, config.num_labels
         )
         self.opensmile_classification_head = classification_head(
-            opensmile_hidden_size, opensmile_hidden_size, config.class_type
+            opensmile_hidden_size, opensmile_hidden_size, config.num_labels
         )
 
     def forward(
@@ -165,13 +165,13 @@ class MultimodalClassifier(torch.nn.Module):
         # Compute loss.
         loss = None
         if labels is not None:
-            if self.config.class_type in [1,2,3]:
+            if self.config.num_label == 1:
                 loss_fct = torch.nn.MSELoss()
                 loss = loss_fct(logits.squeeze(), labels.squeeze())
             else:
                 # TODO: Consider weighting? label_smoothing?
                 loss_fct = torch.nn.CrossEntropyLoss()
-                loss = loss_fct(logits.view(-1, self.config.class_type), labels.view(-1))
+                loss = loss_fct(logits.view(-1, self.config.num_label), labels.view(-1))
 
         # Return.
         return tf.modeling_outputs.SequenceClassifierOutput(loss=loss, logits=logits)
