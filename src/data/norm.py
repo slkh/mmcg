@@ -38,6 +38,26 @@ NORM_MAP = {
 }
 
 
+def multiply_minority_classes(df: pd.DataFrame) -> pd.DataFrame:
+    # Get the class with the fewest samples
+    minority_class = df["NORM"].value_counts().idxmin()
+    # Get the number of samples in the minority class
+    minority_class_size = df["NORM"].value_counts().min()
+    # Get the number of samples in the majority class
+    majority_class_size = df["NORM"].value_counts().max()
+    # Get the number of times the minority class needs to be multiplied to match the majority class
+    multiplier = majority_class_size // minority_class_size
+    # Get the remainder of the division
+    remainder = majority_class_size % minority_class_size
+    # Get the minority class samples
+    minority_class_samples = df[df["NORM"] == minority_class]
+    # Multiply the minority class samples
+    df_multiplied = pd.concat([df, pd.concat([minority_class_samples] * multiplier)])
+    # Add the remainder of the division
+    df_multiplied = pd.concat([df_multiplied, minority_class_samples.sample(remainder)])
+    # Reset the index to maintain a clean index
+    df_multiplied.reset_index(drop=True, inplace=True)
+    return df_multiplied
 
 def load(class_type: int, mode: str) -> datasets.Dataset:
     # class types: 1: each norm, 2: each norm adh/vio, 3: adh/vio of ANY norm
@@ -65,6 +85,8 @@ def load(class_type: int, mode: str) -> datasets.Dataset:
         # drop the individual norm columns
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
+        if mode == "train":
+            df = multiply_minority_classes(df)
     elif class_type == 3:
 #        df['NORM'] = 0
         # if there is an adherence, set to 1, if there is a violation, set to 2, else 0
