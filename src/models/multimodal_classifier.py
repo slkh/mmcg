@@ -171,7 +171,7 @@ class MultimodalClassifier(torch.nn.Module):
             else:
                 # TODO: Consider weighting? label_smoothing?
                 loss_fct = torch.nn.CrossEntropyLoss()
-                loss = loss_fct(logits.view(-1, self.config.num_label), labels.view(-1))
+                loss = loss_fct(logits.view(-1, self.config.num_labels), labels.view(-1))
 
         # Return.
         return tf.modeling_outputs.SequenceClassifierOutput(loss=loss, logits=logits)
