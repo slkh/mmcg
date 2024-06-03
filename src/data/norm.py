@@ -42,7 +42,7 @@ def group_lines(df: pd.DataFrame):
     # group lines by segment_id where the merged text is the concatenation of the text column.
     # the NORM is the minimum of the NORM column
     return df.groupby("segment_id").agg(
-        text=("text", " ".join),
+        text=("text", "\n".join),
         NORM=("NORM", "min"),
     ).reset_index()
 
