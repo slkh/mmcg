@@ -96,6 +96,8 @@ def load(num_labels: int, mode: str) -> datasets.Dataset:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
         
         df = group_lines(df)
+        # make a copy of the NORM column and name it NORM_reg for regression
+        df['NORM_reg'] = df['NORM'].astype(float)
         df = df.drop(columns=["segment_id"])
         # if mode == "train":
         #     df = multiply_minority_classes(df)
