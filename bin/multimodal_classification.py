@@ -119,7 +119,8 @@ def run(
         seed=training_args.data_seed
     )
     if data_args.do_regression:
-        data = data.remove_columns("cb_val").rename_column("cb_val_float", "cb_val")
+        #data = data.remove_columns("cb_val").rename_column("cb_val_float", "cb_val")
+        data = data.remove_columns("NORM").rename_column("NORM_reg", "NORM")
         model_args.num_labels = 1  # NOTE: Just used to stratify.
     # Preprocess training data.
     feature_extractor = tf.AutoFeatureExtractor.from_pretrained(
