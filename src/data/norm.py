@@ -38,6 +38,15 @@ NORM_MAP = {
 }
 
 
+def group_lines(df: pd.DataFrame):
+    # group lines by segment_id where the merged text is the concatenation of the text column.
+    # the NORM is the minimum of the NORM column
+    return df.groupby("segment_id").agg(
+        text=("text", " ".join),
+        NORM=("NORM", "min"),
+    ).reset_index()
+
+
 def multiply_minority_classes(df: pd.DataFrame) -> pd.DataFrame:
     # Get the class with the fewest samples
     minority_class = df["NORM"].value_counts().idxmin()
@@ -85,6 +94,8 @@ def load(num_labels: int, mode: str) -> datasets.Dataset:
         # drop the individual norm columns
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
+        
+        df = group_lines(df)
         # if mode == "train":
         #     df = multiply_minority_classes(df)
     elif num_labels == 3:
