@@ -107,7 +107,8 @@ def load(num_labels: int, mode: str) -> datasets.Dataset:
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
         df['NORM'] = df['NORM'].astype(int)
-
+        df = group_lines(df)
+        df = df.drop(columns=["segment_id"])
 
     elif num_labels == 20:
         # for each norm, whether there is an adherence or violation, set the NORM column to the corresponding index from the NORM_MAP
@@ -126,7 +127,8 @@ def load(num_labels: int, mode: str) -> datasets.Dataset:
         for norm in ["APOLOGY", "CRITICISM", "GREETING", "REQUEST", "PERSUASION", "THANKING", "LEAVING", "ADMIRATION", "FINALIZE_DEAL", "REFUSE_REQUEST"]:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
         df['NORM'] = df['NORM'].astype(int)
-
+        df = group_lines(df)
+        df = df.drop(columns=["segment_id"])
 
     return datasets.Dataset.from_pandas(df, preserve_index=False)
 
