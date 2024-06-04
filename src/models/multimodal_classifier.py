@@ -171,7 +171,7 @@ class MultimodalClassifier(torch.nn.Module):
                 # TODO: Consider weighting? label_smoothing?
                 # get weights for each class
                 class_weights = len(text_input_ids) / (len(labels) * np.bincount(labels))
-                class_weights = torch.tensor(class_weights, dtype=torch.float)
+                class_weights = torch.tensor(class_weights, dtype=torch.float).to(device)
                 # loss_fct = torch.nn.CrossEntropyLoss()
                 loss_fct = torch.nn.CrossEntropyLoss(weight=class_weights)
                 loss = loss_fct(logits.view(-1, self.config.num_labels), labels.view(-1))
