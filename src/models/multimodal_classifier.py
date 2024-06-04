@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dataclasses
 from typing import Literal, Optional
-
+import numpy as np
 import torch
 import transformers as tf
 
@@ -169,7 +169,11 @@ class MultimodalClassifier(torch.nn.Module):
                 loss = loss_fct(logits.squeeze(), labels.squeeze())
             else:
                 # TODO: Consider weighting? label_smoothing?
-                loss_fct = torch.nn.CrossEntropyLoss()
+                # get weights for each class
+                class_weights = len(text_input_ids) / (len(labels) * np.bincount(labels))
+                class_weights = torch.tensor(class_weights, dtype=torch.float)
+                # loss_fct = torch.nn.CrossEntropyLoss()
+                loss_fct = torch.nn.CrossEntropyLoss(weight=class_weights)
                 loss = loss_fct(logits.view(-1, self.config.num_labels), labels.view(-1))
 
         # Return.
