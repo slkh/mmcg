@@ -102,9 +102,12 @@ def load(num_labels: int, mode: str) -> datasets.Dataset:
         # if mode == "train":
         #     df = multiply_minority_classes(df)
     elif num_labels == 3:
-#        df['NORM'] = 0
+        # only ADMIRATION norm: 1 for adherence, 2 for violation, 0 for no adherence or violation
+        df['NORM'] = df.apply(lambda row: 1 if row["ADMIRATION_ADHERENCES"] > 0 else 2 if row["ADMIRATION_VIOLATIONS"] > 0 else 0, axis=1)
+
+
         # if there is an adherence, set to 1, if there is a violation, set to 2, else 0
-        df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 for norm in NORMS) else 2 if any(row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
+        # df['NORM'] = df.apply(lambda row: 1 if any(row[f"{norm}_ADHERENCES"] > 0 for norm in NORMS) else 2 if any(row[f"{norm}_VIOLATIONS"] > 0 for norm in NORMS) else 0, axis=1)
 
         for norm in NORMS:
             df = df.drop(columns=[f"{norm}_ADHERENCES", f"{norm}_VIOLATIONS"])
